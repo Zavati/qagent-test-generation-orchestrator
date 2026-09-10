@@ -8,7 +8,9 @@
     "check": "node --check src/index.js && node --check src/jobs/createProjectGenerationJob.js && node --check src/queue/consumer.js",
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "db:migrate:local": "wrangler d1 migrations apply qagent-test-generation --local"
+    "db:migrate:local": "wrangler d1 migrations apply qagent-test-generation --local",
+    "test:f08-1-6": "node --test test/observed-baseline-compatibility.test.mjs",
+    "check:08.1.6": "npm run check && npm test"
   },
   "devDependencies": {
     "wrangler": "^4.40.0"

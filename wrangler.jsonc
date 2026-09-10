@@ -46,7 +46,7 @@
 	},
 	"d1_databases": [
 		{
-			"binding": "qagent_test_generation",
+			"binding": "TEST_GENERATION_DB",
 			"database_name": "qagent-test-generation",
 			"database_id": "e83bb38d-baf3-4861-9166-b644136118d1",
 			"remote": true

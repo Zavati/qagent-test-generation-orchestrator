@@ -23,3 +23,44 @@ AI prompts, provider calls, Test Data Planner, Semantic Guard, Secret-Safe Sanit
 
 ## Deploy sequence
 Create D1 + Queue, deploy this worker while Gateway already exists, then add/deploy the Gateway binding back to this service. Apply `0001_test_design_generation_jobs.sql` before creating jobs.
+
+## Compatibility with 08.1.6 — Observed Baseline Generation & Provenance
+
+The Orchestrator continues to delegate endpoint generation to the Gateway's
+`/internal/v1/test-design-generation/endpoints/:endpointId/generate` route.
+Baseline construction, feature gates, preservation and immutable Test Design
+persistence belong to the Gateway/Registry. No raw baseline source or request
+body is copied into job records.
+
+This compatibility package corrects the D1 binding name to `TEST_GENERATION_DB`,
+matching `src/persistence/jobRepository.js`. The database name and ID, queue,
+secrets and runtime code are unchanged. No new migration is required.
+
+- Enable the 08.1.6 flags on **Gateway**, not here; deploy compatible receivers first.
+- `MISSING_TEST_DESIGNS` excludes any existing design, including legacy designs.
+  To add observed baselines to an existing project after fresh monitoring, use
+  `ALL_ENDPOINTS` or endpoint-specific regeneration. This creates new versions;
+  it does not rewrite historical versions. Exploratory cases may be regenerated.
+- Batch-created baseline policies default to `STRUCTURE`. Existing protected
+  policies are preserved by Gateway/Registry. A new `CONTROLLED_STATE` approval
+  or source replacement stays in the authenticated, endpoint-specific review UI.
+- `SUCCEEDED` / `COMPLETED` describe generation/persistence, not test execution,
+  READY status, baseline coverage, or complete AI exploration. Inspect the
+  referenced Test Design/inventory for those details.
+- Drain existing jobs before rollout/flag changes. The endpoint list is
+  snapshotted at job creation, but source selection and feature gates are
+  evaluated when each endpoint is processed, not frozen for the entire job.
+- Retries reuse `generationRequestId`, protecting Registry version persistence;
+  an ambiguous failure after a commit can still repeat generation/AI work.
+
+Local checks (no production access):
+
+```bash
+npm run test:f08-1-6
+npm run check:08.1.6
+```
+
+The integration audit also tests Orchestrator → signed Gateway handler → real
+08.1.6 generation/persistence → Registry over local SQLite, with controlled
+Catalog/context/provider and queue transport. It is not a Cloudflare deploy or
+live pilot smoke. See the accompanying audit/validation package.
