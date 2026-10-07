@@ -10,7 +10,8 @@
     "deploy": "wrangler deploy",
     "db:migrate:local": "wrangler d1 migrations apply qagent-test-generation --local",
     "test:f08-1-6": "node --test test/observed-baseline-compatibility.test.mjs",
-    "check:08.1.6": "npm run check && npm test"
+    "check:08.1.6": "npm run check && npm test",
+    "test:f08-1-8": "node --test test/autonomous-learning-08.1.8.test.mjs test/autonomous-repository-08.1.8.test.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.40.0"

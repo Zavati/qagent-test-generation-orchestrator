@@ -1,3 +1,6 @@
+import { autonomousRoute } from './autonomous/routes.js';
+import { handleAutonomousQueue } from './autonomous/queue.js';
+import { recoverLearning } from './autonomous/service.js';
 import { DEFAULT_MAX_CONCURRENCY, DEFAULT_MAX_ITEM_ATTEMPTS, FOUNDATION_REVISION } from './contracts/jobContracts.js';
 import { boundedInt } from './lib/config.js';
 import { asOrchestratorError } from './lib/errors.js';
@@ -9,6 +12,7 @@ const SERVICE = 'qagent-test-generation-orchestrator';
 function notFound() { return json({ status: 'error', code: 'PROJECT_TEST_DESIGN_GENERATION_ROUTE_NOT_FOUND', message: 'Route not found.' }, { status: 404 }); }
 function methodNotAllowed(allowed) { return json({ status: 'error', code: 'PROJECT_TEST_DESIGN_GENERATION_METHOD_NOT_ALLOWED', message: 'Method not allowed.' }, { status: 405, headers: { allow: allowed.join(', ') } }); }
 function errorResponse(error) {
+  if(/^AUTONOMOUS_[A-Z0-9_]+$/.test(error?.code||''))return json({status:'error',code:error.code,message:'Operação autônoma indisponível ou inválida.',retryable:error.retryable===true},{status:error.status||409});
   const safe = asOrchestratorError(error);
   const body = { status: 'error', code: safe.code, message: safe.message, retryable: safe.retryable === true };
   if (safe.details) body.details = safe.details;
@@ -26,6 +30,7 @@ export function buildHealthPayload(env = {}) {
 export async function handleRequest(request, env = {}) {
   const url = new URL(request.url);
   try {
+    const autonomous=await autonomousRoute(request,env);if(autonomous)return json(autonomous.body,{status:autonomous.status});
     if (url.pathname === '/health' || url.pathname === '/v1/test-design-generation/health') {
       if (request.method !== 'GET') return methodNotAllowed(['GET']);
       return json(buildHealthPayload(env));
@@ -52,7 +57,9 @@ export async function handleRequest(request, env = {}) {
 }
 export default {
   async fetch(request, env) { return handleRequest(request, env); },
+  async scheduled(controller,env,ctx) { ctx.waitUntil(recoverLearning(env)); },
   async queue(batch, env) {
+    if(String(batch?.queue||'')==='qagent-autonomous-learning')return handleAutonomousQueue(batch,env);
     if (String(batch?.queue || '') !== 'qagent-test-design-generation') return;
     return handleGenerationQueue(batch, env);
   },
