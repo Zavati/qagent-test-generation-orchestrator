@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { UiSQLiteD1 } from './helpers/ui-sqlite.mjs';
 import { uiRepository } from '../src/ui/repository.js';
 import { createUiJob, processUiMessage, recoverUiJobs } from '../src/ui/service.js';
-import { canonical, DEFAULT_UI_PROFILE, hash, normalizeUiJob, UI_COMPILER_VERSION, UI_COMPILATION_VERSION, uiError, validateCompilation, wakeFor } from '../src/ui/contracts.js';
+import { canonical, LEGACY_DEFAULT_UI_PROFILE as DEFAULT_UI_PROFILE, hash, normalizeUiJob, UI_LEGACY_COMPILER_VERSION as UI_COMPILER_VERSION, UI_LEGACY_COMPILATION_VERSION as UI_COMPILATION_VERSION, uiError, validateCompilation, wakeFor } from '../src/ui/contracts.js';
 import { uiGatewayCall } from '../src/ui/gatewayClient.js';
 import { buildInternalHeaders, verifyInternalRequest } from '../src/security/internalAuth.js';
 import worker, { handleRequest } from '../src/index.js';

@@ -1,6 +1,6 @@
 {
   "name": "qagent-test-generation-orchestrator",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -13,7 +13,8 @@
     "check:08.1.6": "npm run check && npm test",
     "test:f08-1-8": "node --test test/autonomous-learning-08.1.8.test.mjs test/autonomous-repository-08.1.8.test.mjs",
     "test:ui-td2": "node --test test/ui-jobs.test.mjs",
-    "db:migrate:remote": "wrangler d1 migrations apply qagent-test-generation --remote"
+    "db:migrate:remote": "wrangler d1 migrations apply qagent-test-generation --remote",
+    "test:ui-td3": "node --test test/ui-jobs.test.mjs test/ui-observed-plan-jobs.test.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.40.0"
