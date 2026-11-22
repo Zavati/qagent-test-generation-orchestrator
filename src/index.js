@@ -5,8 +5,11 @@ import { DEFAULT_MAX_CONCURRENCY, DEFAULT_MAX_ITEM_ATTEMPTS, FOUNDATION_REVISION
 import { boundedInt } from './lib/config.js';
 import { asOrchestratorError } from './lib/errors.js';
 import { json } from './lib/json.js';
-import { handleGenerationQueue } from './queue/consumer.js';
 import { createJobRoute, getJobRoute, listJobItemsRoute, listJobsRoute } from './routes/jobs.js';
+import { uiRoute } from './ui/routes.js';
+import { processUiMessage, recoverUiJobs } from './ui/service.js';
+import { UI_WAKE_VERSION } from './ui/contracts.js';
+import { processJobItemMessage } from './queue/consumer.js';
 
 const SERVICE = 'qagent-test-generation-orchestrator';
 function notFound() { return json({ status: 'error', code: 'PROJECT_TEST_DESIGN_GENERATION_ROUTE_NOT_FOUND', message: 'Route not found.' }, { status: 404 }); }
@@ -30,6 +33,7 @@ export function buildHealthPayload(env = {}) {
 export async function handleRequest(request, env = {}) {
   const url = new URL(request.url);
   try {
+    const ui=await uiRoute(request,env);if(ui)return json(ui.body,{status:ui.status});
     const autonomous=await autonomousRoute(request,env);if(autonomous)return json(autonomous.body,{status:autonomous.status});
     if (url.pathname === '/health' || url.pathname === '/v1/test-design-generation/health') {
       if (request.method !== 'GET') return methodNotAllowed(['GET']);
@@ -57,10 +61,14 @@ export async function handleRequest(request, env = {}) {
 }
 export default {
   async fetch(request, env) { return handleRequest(request, env); },
-  async scheduled(controller,env,ctx) { ctx.waitUntil(recoverLearning(env)); },
+  async scheduled(controller,env,ctx) { ctx.waitUntil(Promise.allSettled([recoverLearning(env),recoverUiJobs(env)])); },
   async queue(batch, env) {
     if(String(batch?.queue||'')==='qagent-autonomous-learning')return handleAutonomousQueue(batch,env);
     if (String(batch?.queue || '') !== 'qagent-test-design-generation') return;
-    return handleGenerationQueue(batch, env);
+    // One existing queue, explicit domain dispatch. UI never enters the API/AI use case.
+    for (const message of batch?.messages || []) {
+      if(message?.body?.contractVersion===UI_WAKE_VERSION) await processUiMessage(message,env);
+      else await processJobItemMessage(message,env);
+    }
   },
 };

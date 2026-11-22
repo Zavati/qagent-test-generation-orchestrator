@@ -1,83 +1,83 @@
 {
-  "name": "qagent-test-generation-orchestrator",
-  "compatibility_date": "2026-01-14",
-  "main": "src/index.js",
-  "workers_dev": false,
-  "services": [
-    {
-      "binding": "CATALOG_QUERY_SERVICE",
-      "service": "qagent-catalog"
-    },
-    {
-      "binding": "TEST_REGISTRY_SERVICE",
-      "service": "qagent-test-registry"
-    },
-    {
-      "binding": "TEST_DESIGN_GENERATION_SERVICE",
-      "service": "qagent-gateway"
-    }
-  ],
-  "queues": {
-    "producers": [
-      {
-        "binding": "TEST_DESIGN_GENERATION_QUEUE",
-        "queue": "qagent-test-design-generation"
-      },
-      {
-        "binding": "AUTONOMOUS_LEARNING_QUEUE",
-        "queue": "qagent-autonomous-learning"
-      }
-    ],
-    "consumers": [
-      {
-        "queue": "qagent-test-design-generation",
-        "max_batch_size": 1,
-        "max_batch_timeout": 1,
-        "max_retries": 8,
-        "max_concurrency": 3
-      },
-      {
-        "queue": "qagent-autonomous-learning",
-        "max_batch_size": 1,
-        "max_batch_timeout": 1,
-        "max_retries": 3,
-        "max_concurrency": 4
-      }
-    ]
-  },
-  "vars": {
-    "ENVIRONMENT": "development",
-    "MAX_ITEM_ATTEMPTS": "5",
-    "MAX_CONCURRENCY": "3",
-    "INTERNAL_MAX_SKEW_SECONDS": "60",
-    "CATALOG_QUERY_TIMEOUT_MS": "10000",
-    "TEST_REGISTRY_TIMEOUT_MS": "10000",
-    "TEST_DESIGN_GENERATION_TIMEOUT_MS": "120000",
-    "ITEM_CLAIM_LEASE_SECONDS": "180"
-  },
-  "d1_databases": [
-    {
-      "binding": "TEST_GENERATION_DB",
-      "database_name": "qagent-test-generation",
-      "database_id": "e83bb38d-baf3-4861-9166-b644136118d1",
-      "remote": true
-    }
-  ],
-  "observability": {
-    "enabled": true,
-    "logs": {
-      "enabled": true,
-      "invocation_logs": true,
-      "persist": true
-    },
-    "traces": {
-      "enabled": true,
-      "persist": true
-    }
-  },
-  "triggers": {
-    "crons": [
-      "* * * * *"
-    ]
-  }
+	"name": "qagent-test-generation-orchestrator",
+	"compatibility_date": "2026-01-14",
+	"main": "src/index.js",
+	"workers_dev": false,
+	"services": [
+		{
+			"binding": "CATALOG_QUERY_SERVICE",
+			"service": "qagent-catalog"
+		},
+		{
+			"binding": "TEST_REGISTRY_SERVICE",
+			"service": "qagent-test-registry"
+		},
+		{
+			"binding": "TEST_DESIGN_GENERATION_SERVICE",
+			"service": "qagent-gateway"
+		}
+	],
+	"queues": {
+		"producers": [
+			{
+				"binding": "TEST_DESIGN_GENERATION_QUEUE",
+				"queue": "qagent-test-design-generation"
+			},
+			{
+				"binding": "AUTONOMOUS_LEARNING_QUEUE",
+				"queue": "qagent-autonomous-learning"
+			}
+		],
+		"consumers": [
+			{
+				"queue": "qagent-test-design-generation",
+				"max_batch_size": 1,
+				"max_batch_timeout": 1,
+				"max_retries": 8,
+				"max_concurrency": 3
+			},
+			{
+				"queue": "qagent-autonomous-learning",
+				"max_batch_size": 1,
+				"max_batch_timeout": 1,
+				"max_retries": 3,
+				"max_concurrency": 4
+			}
+		]
+	},
+	"vars": {
+		"ENVIRONMENT": "development",
+		"MAX_ITEM_ATTEMPTS": "5",
+		"MAX_CONCURRENCY": "3",
+		"INTERNAL_MAX_SKEW_SECONDS": "60",
+		"CATALOG_QUERY_TIMEOUT_MS": "10000",
+		"TEST_REGISTRY_TIMEOUT_MS": "10000",
+		"TEST_DESIGN_GENERATION_TIMEOUT_MS": "120000",
+		"ITEM_CLAIM_LEASE_SECONDS": "180"
+	},
+	"d1_databases": [
+		{
+			"binding": "TEST_GENERATION_DB",
+			"database_name": "qagent-test-generation",
+			"database_id": "e83bb38d-baf3-4861-9166-b644136118d1",
+			"remote": true
+		}
+	],
+	"observability": {
+		"enabled": true,
+		"logs": {
+			"enabled": true,
+			"invocation_logs": true,
+			"persist": true
+		},
+		"traces": {
+			"enabled": true,
+			"persist": true
+		}
+	},
+	"triggers": {
+		"crons": [
+			"* * * * *"
+		]
+	}
 }

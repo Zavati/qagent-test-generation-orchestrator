@@ -1,6 +1,10 @@
-# qagent-test-generation-orchestrator — 07.8-B
+# qagent-test-generation-orchestrator — UI-TD-2 / 0.2.0
 
 Operational plane for asynchronous Project-level Test Design generation.
+
+This version adds deterministic UI Test Design batches to the existing 08.1.8
+service. API generation and autonomous learning retain their own contracts and
+behavior. See [UI-TD-2 operation, deployment and validation](docs/ui-td2.md).
 
 ## Owns
 - deterministic project endpoint snapshots;
